@@ -11,9 +11,7 @@ class keywordController extends Controller
 
     public function list(Request $request)
     {
-
-        $keyword = $request->f_list;
-
+        $finalData =  $request->f_list;
         $array = [
             'f_duplicates' => function ($rawData) {
                 return $this->checkDuplicates($rawData);
@@ -21,27 +19,27 @@ class keywordController extends Controller
             'f_sort' => function ($rawData) {
                 return $this->checkSorting($rawData);
             },
-            'f_empty' => function($rawData){
+            'f_empty' => function ($rawData) {
                 return $this->checkEmpty($rawData);
             },
-            'f_alphanum' => function($rawData){
+            'f_alphanum' => function ($rawData) {
                 return $this->checkAlphanum($rawData);
             },
-            'f_toupper' => function($rawData){
+            'f_toupper' => function ($rawData) {
                 return $this->checkToupper($rawData);
             },
-            'f_tolower' => function($rawData){
+            'f_tolower' => function ($rawData) {
                 return $this->checkTolower($rawData);
             },
-            'f_emailsonly' => function($rawData){
+            'f_emailsonly' => function ($rawData) {
                 return $this->validateEmail($rawData);
             },
-            'f_urlsonly' => function($rawData){
+            'f_urlsonly' => function ($rawData) {
                 return $this->validateUrl($rawData);
             }
         ];
 
-        $finalData =  $request->f_list;
+
         foreach ($request->check as $filed) {
             $finalData = $array[$filed]($finalData);
         }
@@ -56,25 +54,39 @@ class keywordController extends Controller
         // Define a regular expression pattern for a valid email address
         $pattern = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/';
 
-        // Use the preg_match function to test if the email matches the pattern
-        if (preg_match($pattern, $email)) {
-            return $email;
-        } else {
-            return " ";
+        $string = explode("\n", $email);
+
+        $sortedArray = [];
+        foreach ($string as $values) {
+
+            // Use the preg_match function to test if the email matches the pattern
+            if (preg_match($pattern, $values)) {
+
+                $sortedArray[] =  $values;
+            }
         }
+        $sorted = implode("\n", $sortedArray);
+        return $sorted;
     }
 
     function validateUrl($url)
     {
         // Define a regular expression pattern for a valid url address
-        $pattern = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
+        $pattern = '/((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z0-9\&\.\/\?\:@\-_=#])*/';
 
-        // Use the preg_match function to test if the url matches the pattern
-        if (preg_match($pattern, $url)) {
-            return $url;
-        } else {
-            return " ";
+        $string = explode("\n", $url);
+
+        $sortedArray = [];
+        foreach ($string as $values) {
+
+            // Use the preg_match function to test if the url matches the pattern
+            if (preg_match($pattern, $values)) {
+
+                $sortedArray[] =  $values;
+            }
         }
+        $sorted = implode("\n", $sortedArray);
+        return $sorted;
     }
 
     function checkDuplicates($keyword)
@@ -92,12 +104,11 @@ class keywordController extends Controller
     {
         $string = explode("\n", $rawData);
 
-        sort($string,SORT_NATURAL | SORT_FLAG_CASE);
+        sort($string, SORT_NATURAL | SORT_STRING | SORT_FLAG_CASE);
 
         $sortedArray = implode("\n", $string);
 
         return $sortedArray;
-
     }
 
     function checkEmpty($rawData)
@@ -108,19 +119,28 @@ class keywordController extends Controller
         return $sortedArray;
     }
 
-    function checkAlphanum($rawData){
-        $sortedArray = preg_replace("/[^a-zA-Z0-9]+/", "", $rawData);
+    function checkAlphanum($rawData)
+    {
+        $string = explode("\n", $rawData);
+
+        $pattern = '/[^A-Za-z0-9 ]/';
+
+        $array = preg_replace($pattern, '', $string);
+
+        $sortedArray = implode("\n", $array);
 
         return $sortedArray;
     }
 
-    function checkToupper($rawData){
+    function checkToupper($rawData)
+    {
         $sortedArray = strtoupper($rawData);
 
         return $sortedArray;
     }
 
-    function checkTolower($rawData){
+    function checkTolower($rawData)
+    {
 
         $sortedArray = strtolower($rawData);
 
