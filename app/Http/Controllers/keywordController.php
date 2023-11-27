@@ -13,29 +13,29 @@ class keywordController extends Controller
     {
         $finalData =  $request->f_list;
         $array = [
-            'f_duplicates' => function ($rawData) {
-                return $this->checkDuplicates($rawData);
+            'f_duplicates' => function ($finalData) {
+                return $this->checkDuplicates($finalData);
             },
-            'f_sort' => function ($rawData) {
-                return $this->checkSorting($rawData);
+            'f_sort' => function ($finalData) use($request) {
+                return $this->checkSorting($request,$finalData);
             },
-            'f_empty' => function ($rawData) {
-                return $this->checkEmpty($rawData);
+            'f_empty' => function ($finalData) {
+                return $this->checkEmpty($finalData);
             },
-            'f_alphanum' => function ($rawData) {
-                return $this->checkAlphanum($rawData);
+            'f_alphanum' => function ($finalData) {
+                return $this->checkAlphanum($finalData);
             },
             'f_toupper' => function ($rawData) {
                 return $this->checkToupper($rawData);
             },
-            'f_tolower' => function ($rawData) {
-                return $this->checkTolower($rawData);
+            'f_tolower' => function ($finalData) {
+                return $this->checkTolower($finalData);
             },
-            'f_emailsonly' => function ($rawData) {
-                return $this->validateEmail($rawData);
+            'f_emailsonly' => function ($finalData) {
+                return $this->validateEmail($finalData);
             },
-            'f_urlsonly' => function ($rawData) {
-                return $this->validateUrl($rawData);
+            'f_urlsonly' => function ($finalData) {
+                return $this->validateUrl($finalData);
             }
         ];
 
@@ -100,11 +100,15 @@ class keywordController extends Controller
         return $sortedArray;
     }
 
-    function checkSorting($rawData)
+    function checkSorting($request, $rawData)
     {
         $string = explode("\n", $rawData);
 
-        sort($string, SORT_NATURAL | SORT_STRING | SORT_FLAG_CASE);
+        if(in_array('f_tolower', $request->check) ||  in_array('f_toupper',$request->check)){
+            sort($string, SORT_NATURAL | SORT_STRING | SORT_FLAG_CASE | SORT_ASC);
+        }else{
+            sort($string, SORT_NATURAL | SORT_STRING |  SORT_ASC);
+        }
 
         $sortedArray = implode("\n", $string);
 
